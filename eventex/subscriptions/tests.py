@@ -1,3 +1,4 @@
+from django.core import mail
 from django.test import TestCase
 from eventex.subscriptions.forms import SubscriptionForm
 
@@ -35,4 +36,47 @@ class SubscribeTest(TestCase):
         form = self.response.context['form']
         self.assertSequenceEqual(['name', 'cpf', 'email', 'phone'], list(form.fields))
 
-        #M2A12 21:40
+class SubscribePostTest(TestCase):
+    def setUp(self):
+        data = dict(name='Ricardo Beckert', cpf='12345678901', email='beckert.ricardo@gmail.com', phone='48-99999-0001')
+        self.response = self.client.post('/inscricao/', data)
+
+    def test_post(self):
+        """Valid Post should redirect to /inscricao/"""
+        self.assertEqual(302, self.response.status_code)
+
+    def test_send_subscribe_email(self):
+        self.assertEqual(1, len(mail.outbox))
+
+    def test_subscription_email_subject(self):
+        email = mail.outbox[0]
+        expect = 'Confirmação de Inscrição'
+        self.assertEqual(expect, email.subject)
+
+    def test_subscription_email_from(self):
+        email = mail.outbox[0]
+        expect = 'contato@eventex.com.br'
+        self.assertEqual(expect, email.from_email)
+
+    def test_subscription_email_to(self):
+        email = mail.outbox[0]
+        expect = ['contato@eventex.com.br','beckert.ricardo@gmail.com']
+        self.assertEqual(expect, email.to)
+
+    def test_subscription_email_body(self):
+        email = mail.outbox[0]
+
+        self.assertIn('Ricardo Beckert', email.body)
+        self.assertIn('12345678901', email.body)
+        self.assertIn('beckert.ricardo@gmail.com', email.body)
+        self.assertIn('48-99999-0001', email.body)
+
+class SubscribeInvalidPost(TestCase):
+        def test_post(self):
+            """Invalid POST should not redirect"""
+            reponse = self.client.post('/inscricao/', {})
+            self.assertEqual(200, response.status_code)
+
+
+    #M2A13 - 13:00
+    #https: // welcometothedjango.com.br / hackerspaces / cursos / muito - alem - da - programacao / desenvolvimento - sustentavel - de - software / como - sei - quem - se - inscreveu /  # 0h5m17s
