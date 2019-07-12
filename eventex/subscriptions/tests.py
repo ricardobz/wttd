@@ -2,6 +2,7 @@ from django.core import mail
 from django.test import TestCase
 from eventex.subscriptions.forms import SubscriptionForm
 
+
 class SubscribeTest(TestCase):
     def setUp(self):
         self.response = self.client.get('/inscricao/')
@@ -35,6 +36,7 @@ class SubscribeTest(TestCase):
         """Form must have 4 fields"""
         form = self.response.context['form']
         self.assertSequenceEqual(['name', 'cpf', 'email', 'phone'], list(form.fields))
+
 
 class SubscribePostTest(TestCase):
     def setUp(self):
@@ -71,12 +73,34 @@ class SubscribePostTest(TestCase):
         self.assertIn('beckert.ricardo@gmail.com', email.body)
         self.assertIn('48-99999-0001', email.body)
 
+
 class SubscribeInvalidPost(TestCase):
-        def test_post(self):
-            """Invalid POST should not redirect"""
-            reponse = self.client.post('/inscricao/', {})
-            self.assertEqual(200, response.status_code)
+    def setUp(self):
+        self.response = self.client.post('/inscricao/', {})
+
+    def test_post(self):
+        """Invalid POST should not redirect"""
+        reponse = self.client.post('/inscricao/', {})
+        self.assertEqual(200, self.response.status_code)
+
+    def test_template(self):
+        self.assertTemplateUsed(self.response, 'subscriptions/subscription_form.html')
+
+    def test_has_form(self):
+        form = self.response.context['form']
+        self.assertIsInstance(form, SubscriptionForm)
+
+    def test_has_errors(self):
+        form = self.response.context['form']
+        self.assertTrue(form.errors)
 
 
-    #M2A13 - 13:00
-    #https: // welcometothedjango.com.br / hackerspaces / cursos / muito - alem - da - programacao / desenvolvimento - sustentavel - de - software / como - sei - quem - se - inscreveu /  # 0h5m17s
+class SubscribeSuccessMessage(TestCase):
+    def test_message(self):
+        data = dict(name='Ricardo Beckert', cpf='12345678901', email='beckert.ricardo@gmail.com', phone='48-99999-0001')
+
+        response = self.client.post('/inscricao/', data, follow=True)
+        self.assertContains(response, 'Inscrição realizada com sucesso!')
+
+
+    #M2A14 ->
