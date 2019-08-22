@@ -29,4 +29,3 @@ def subscribe(request):
     else:
         context = {'form': SubscriptionForm()}
         return render(request, 'subscriptions/subscription_form.html', context)
-
