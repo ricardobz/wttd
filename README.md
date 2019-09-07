@@ -1,5 +1,8 @@
 # Eventex
 
+[![Build Status](https://travis-ci.org/ricardobz/wttd.svg?branch=master)](https://travis-ci.org/ricardobz/wttd)
+
+
 Sistema de Eventos encomendado pela Morena
 
 ## Como desenvolver?
@@ -16,7 +19,7 @@ git clone https://github.com/ricardobz/wttd.git
 cd wttd
 python -m venv .wttd
 source .wttd/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 cp contrib/env-sample .env
 ```
 
